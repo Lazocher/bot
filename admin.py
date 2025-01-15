@@ -1,3 +1,4 @@
+import logging
 import os
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, g, jsonify, send_from_directory
@@ -44,11 +45,18 @@ app = Flask(__name__)
 app.secret_key = 'AdminKwork'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-import logging
-
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 def get_dishes_by_restaurant(restaurant_name):
@@ -132,7 +140,6 @@ def admin_panel():
                            cities=cities,
                            restaurants=restaurants,
                            categories=categories)  # Передаем категории
-
 
 @app.route('/add_restaurant', methods=['POST'])
 def add_restaurant_route():
@@ -647,30 +654,33 @@ def delete_data_route():
 
 @app.route('/add_manager', methods=['POST'])
 def add_manager_route():
-    username = request.form['manager_login']
-    password = request.form['manager_password']
-    city = request.form['city_id']
-    restaurant = request.form['restaurant_id']
-
     try:
-        # Подключаемся к базе данных
-        conn = sqlite3.connect('bot_database.db')  # Укажите правильный путь к базе данных
-        cursor = conn.cursor()
+        # Извлекаем данные формы
+        username = request.form.get('login')
+        password = request.form.get('password')
+        city = request.form.get('city_id')
+        restaurant = request.form.get('restaurant_id')
 
-        # Добавляем нового менеджера
-        cursor.execute('''
-            INSERT INTO users (username, password, role, city, restaurant)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (username, password, 2, city, restaurant))  # Роль 2 — это менеджер
+        # Проверяем, что все поля заполнены
+        if not username or not password or not city or not restaurant:
+            flash("Все поля (логин, пароль, город, ресторан) обязательны для заполнения.", "error")
+            return redirect(url_for('admin_panel'))
 
-        conn.commit()
-        flash(f"Менеджер '{username}' успешно добавлен для ресторана '{restaurant}' в городе '{city}'!", "success")
+        # Добавляем данные в базу
+        with sqlite3.connect('bot_database.db') as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO users (username, password, role, city, restaurant)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (username, password, 2, city, restaurant))
+
+        flash(f"Менеджер '{username}' успешно добавлен!", "success")
+
     except sqlite3.IntegrityError:
         flash(f"Ошибка: Пользователь с логином '{username}' уже существует.", "error")
     except Exception as e:
-        flash(f"Ошибка: {str(e)}", "error")
-    finally:
-        conn.close()
+        app.logger.error(f"Ошибка при добавлении менеджера: {e}")
+        flash(f"Произошла непредвиденная ошибка: {e}", "error")
 
     return redirect(url_for('admin_panel'))
 
@@ -773,22 +783,27 @@ def login():
         # Проверяем пользователя в базе данных
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT id, role, city, restaurant FROM users WHERE username = ? AND password = ?',
-                       (username, password))
+        cursor.execute('SELECT id FROM users WHERE username = ? AND password = ?', (username, password))
         user = cursor.fetchone()
         conn.close()
 
         if user:
-            # Сохраняем данные пользователя в сессии
-            session['user_id'] = user[0]
-            session['role'] = user[1]
-            session['city'] = user[2]
-            session['restaurant'] = user[3]
+            session['user_id'] = user[0]  # Сохраняем только ID пользователя в сессии
 
-            if user[1] == 1:  # Если администратор
+            # Проверяем роль напрямую из базы
+            conn = get_connection()
+            cursor = conn.cursor()
+            cursor.execute('SELECT role FROM users WHERE id = ?', (user[0],))
+            role = cursor.fetchone()
+            conn.close()
+
+            if role and role[0] == 1:  # Если администратор
                 return redirect(url_for('admin_panel'))
-            elif user[1] == 2:  # Если менеджер
+            elif role and role[0] == 2:  # Если менеджер
                 return redirect(url_for('manager_panel'))
+            else:
+                flash("У вас нет доступа к панели.", "error")
+                return redirect(url_for('login'))
         else:
             flash("Неправильный логин или пароль.", "error")
             return redirect(url_for('login'))
@@ -1026,7 +1041,7 @@ def get_stoplist_dishes():
 
 
 if __name__ == '__main__':
-    def add_manager_user(username, password, city, restaurant):
+    def add_admin(username, password):
         try:
             # Подключаемся к базе данных
             conn = sqlite3.connect('bot_database.db')  # Укажите путь к вашей базе данных
@@ -1034,20 +1049,18 @@ if __name__ == '__main__':
 
             # Добавляем нового менеджера
             cursor.execute('''
-                INSERT INTO users (username, password, role, city, restaurant)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (username, password, 2, city, restaurant))  # Роль 2 — это менеджер
+                INSERT INTO users (username, password, role)
+                VALUES (?, ?, ?)
+            ''', (username, password, 1))
 
             conn.commit()
             conn.close()
-            print(f"Менеджер '{username}' успешно добавлен для ресторана '{restaurant}' в городе '{city}'.")
+            print(f"Аккаунт Администратора успешно добавлен'.")
         except sqlite3.IntegrityError:
             print(f"Ошибка: Пользователь с логином '{username}' уже существует.")
 
 
     # Добавляем менеджера
-    add_manager_user("Res2", "Res2", "Москва", "WhiteRabbit")
+    add_admin("PabiKwork1978", "PabiKwork1978")
 
-    conn.close()
-    get_dishes_by_restaurant("WhiteRabbit")
     app.run(debug=True)
