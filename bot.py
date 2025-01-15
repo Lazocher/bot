@@ -1024,7 +1024,8 @@ async def select_dishes(callback_query: types.CallbackQuery):
 
     # Retrieve dishes for the selected restaurant and category
     cursor.execute('''
-        SELECT id, dish_name FROM menu
+        SELECT id, dish_name 
+        FROM menu
         WHERE restaurant_id = ? AND category_id = ?
     ''', (restaurant_id, category_id))
     dishes = cursor.fetchall()
@@ -1066,9 +1067,18 @@ async def select_dishes(callback_query: types.CallbackQuery):
         if dishes:
             keyboard = InlineKeyboardMarkup(row_width=1)
             for dish_id, dish_name in dishes:
+                # Check if the dish contains the word "Stopping"
+                if "Stopping" in dish_name:
+                    await callback_query.answer(
+                        "Упс... Данного блюда нет в наличии",
+                        show_alert=True
+                    )
+                    continue  # Skip adding this dish to the menu
+
                 # Include restaurant_id and category_id in the callback data
                 keyboard.add(
-                    InlineKeyboardButton(dish_name, callback_data=f"dish_{dish_id}_{restaurant_id}_{category_id}"))
+                    InlineKeyboardButton(dish_name, callback_data=f"dish_{dish_id}_{restaurant_id}_{category_id}")
+                )
             keyboard.add(InlineKeyboardButton("🔙 Назад", callback_data=f"category_{category_id}"))  # Back button
 
             await callback_query.message.edit_text("Выберите блюдо:", reply_markup=keyboard)
@@ -1302,42 +1312,49 @@ async def notify_user(order_id, status):
         logging.error(f"Ошибка при отправке уведомления для заказа {order_id}: {e}")
 
 
-async def send_review_request(user_id, dish_name):
-    keyboard = InlineKeyboardMarkup(row_width=1)
-    for rating in range(1, 6):
-        keyboard.add(InlineKeyboardButton(f"{rating}⭐️", callback_data=f"rate_{rating}_{dish_name}"))
-        await asyncio.sleep(3600)
-    await bot.send_message(
-        user_id,
-        f"Как вы оцениваете блюдо '{dish_name}'? Оставьте отзыв от 1 до 5 звёзд:",
-        reply_markup=keyboard
-    )
-
-
 async def monitor_order_status():
     while True:
         try:
+            # Обрабатываем заказы со статусом Approved или Rejected
             cursor_payment.execute('''
                 SELECT id, telegram_id, dishes, status 
                 FROM orders 
-                WHERE status = 'Approved' AND (notified_review IS NULL OR notified_review = 0)
+                WHERE (status = 'Approved' OR status = 'Rejected') 
+                AND (notified_review IS NULL OR notified_review = 0)
             ''')
             orders = cursor_payment.fetchall()
 
             for order_id, telegram_id, dishes, status in orders:
-                # Проверяем, есть ли данные о блюдах
-                if not dishes:
-                    logging.warning(f"У заказа {order_id} отсутствуют данные о блюдах.")
-                    continue
+                if status == 'Approved':
+                    # Отправляем уведомление об одобрении заказа
+                    await bot.send_message(
+                        telegram_id,
+                        "Ваш заказ одобрен! Ожидайте, при поступлении вопросов с вами свяжутся по номеру телефона."
+                    )
 
-                # Извлекаем название первого блюда
-                first_dish = dishes.split(",")[0]  # Берём первый элемент списка блюд
-                dish_name = re.sub(r"x\d+$", "", first_dish).strip()  # Убираем количество (например, "x5")
+                    # Проверяем, есть ли данные о блюдах
+                    if not dishes:
+                        logging.warning(f"У заказа {order_id} отсутствуют данные о блюдах.")
+                        continue
 
-                # Отправляем запрос на отзыв
-                await asyncio.create_task(send_review_request(telegram_id, dish_name))
+                    # Отправляем запрос на отзыв через 1 час
+                    await asyncio.sleep(3600)  # 1 час (3600 секунд)
+                    first_dish = dishes.split(",")[0]  # Берём первый элемент списка блюд
+                    dish_name = re.sub(r"x\d+$", "", first_dish).strip()  # Убираем количество (например, "x5")
+                    await send_review_request(telegram_id, dish_name)
 
-                # Помечаем заказ как уведомлённый о необходимости оставить отзыв
+                elif status == 'Rejected':
+                    # Отправляем уведомление об отклонении заказа
+                    await bot.send_message(
+                        telegram_id,
+                        (
+                            "Упс... Заказ отменен. Скорее всего у менеджера были основания на отклонение вашего заказа."
+                            "Если это так, не тратьте наше время. В ином случае за возвратом средств обращайтесь "
+                            "pabi1978@gmail.com"
+                        )
+                    )
+
+                # Помечаем заказ как уведомлённый
                 cursor_payment.execute('UPDATE orders SET notified_review = 1 WHERE id = ?', (order_id,))
                 conn_payment.commit()
 
@@ -1345,6 +1362,18 @@ async def monitor_order_status():
         except Exception as e:
             logging.error(f"Ошибка при мониторинге статусов заказов: {e}")
             await asyncio.sleep(10)
+
+
+async def send_review_request(user_id, dish_name):
+    keyboard = InlineKeyboardMarkup(row_width=1)
+    for rating in range(1, 6):
+        keyboard.add(InlineKeyboardButton(f"{rating}⭐️", callback_data=f"rate_{rating}_{dish_name}"))
+
+    await bot.send_message(
+        user_id,
+        f"Как вы оцениваете блюдо '{dish_name}'? Оставьте отзыв от 1 до 5 звёзд:",
+        reply_markup=keyboard
+    )
 
 
 @dp.callback_query_handler(lambda c: c.data.startswith("rate_"))
@@ -1355,10 +1384,15 @@ async def handle_rating(callback_query: types.CallbackQuery):
         dish_name = "_".join(data[2:])  # На случай, если название блюда содержит символы "_"
         user_id = callback_query.from_user.id
 
-        # Получение текущих отзывов
+        # Проверка, оставлял ли пользователь уже отзыв для этого блюда
         cursor.execute('SELECT reviews FROM menu WHERE dish_name = ?', (dish_name,))
         result = cursor.fetchone()
         reviews = json.loads(result[0]) if result and result[0] else []
+
+        # Проверяем, оставлял ли пользователь уже отзыв
+        if any(review["user_id"] == user_id for review in reviews):
+            await callback_query.answer("Упс... К сожалению вы уже оставили отзыв для этого блюда :(", show_alert=True)
+            return
 
         # Добавляем новый отзыв
         reviews.append({"user_id": user_id, "rating": rating})
