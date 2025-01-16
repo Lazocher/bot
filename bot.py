@@ -17,7 +17,7 @@ import re
 logging.basicConfig(level=logging.INFO)
 
 # Укажите свой токен
-TOKEN = '7753898475:AAGcfz7iTs7llLxr6jq_ude78Pp14ee53Bg'
+TOKEN = '6255243124:AAGxhPPVQqYnTYZrR1pZf3WOdrAmYQMC3mw'
 
 bot = Bot(token=TOKEN)
 storage = MemoryStorage()
