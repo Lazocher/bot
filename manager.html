@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0066ff 0%, #ffffff 100%);
+    position: relative;
+    overflow-x: hidden;
+}
+
+.bubbles {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+    top: 0;
+    left: 0;
+}
+
+.bubble {
+    position: absolute;
+    bottom: -100px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    opacity: 0.5;
+    animation: rise 10s infinite ease-in;
+}
+
+.bubble:nth-child(1) { left: 10%; animation-duration: 8s; }
+.bubble:nth-child(2) { left: 20%; animation-duration: 5s; animation-delay: 1s; }
+.bubble:nth-child(3) { left: 35%; animation-duration: 7s; animation-delay: 2s; }
+.bubble:nth-child(4) { left: 50%; animation-duration: 11s; animation-delay: 0s; }
+.bubble:nth-child(5) { left: 65%; animation-duration: 6s; animation-delay: 3s; }
+
+@keyframes rise {
+    0% {
+        bottom: -100px;
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(100px);
+    }
+    100% {
+        bottom: 1080px;
+        transform: translateX(-200px);
+    }
+}
+
+.admin-container {
+    position: relative;
+    z-index: 1;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.header h1 {
+    color: #0066ff;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.header h2 {
+    color: #666;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+}
+
+.tab {
+    padding: 1.2rem 2.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.tab.active {
+    background: #0066ff;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.content-section {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.action-button {
+    padding: 1.2rem;
+    background: #ffffff;
+    border: 2px solid #e1e1e1;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.action-button:hover {
+    border-color: #0066ff;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 102, 255, 0.2);
+}
+
+.action-button i {
+    color: #0066ff;
+    font-size: 1.3rem;
+}
+
+.products-list {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.list-item {
+    padding: 1.5rem;
+    border-bottom: 1px solid #eef2f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.list-item:hover {
+    background-color: #f8faff;
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+.item-info h3 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.item-info p {
+    color: #666;
+    margin: 0.3rem 0;
+    font-size: 0.95rem;
+}
+
+.item-actions {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.item-actions button {
+    padding: 0.8rem 1.2rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.item-actions button i {
+    font-size: 1.1rem;
+}
+
+.edit-btn {
+    background: #0066ff;
+    color: white;
+}
+
+.edit-btn:hover {
+    background: #0052cc;
+    transform: translateY(-2px);
+}
+
+.delete-btn {
+    background: #ff3333;
+    color: white;
+}
+
+.delete-btn:hover {
+    background: #cc0000;
+    transform: translateY(-2px);
+}
+
+.stoplist-btn {
+    background: #ff9900;
+    color: white;
+}
+
+.stoplist-btn:hover {
+    background: #cc7a00;
+    transform: translateY(-2px);
+}
+
+.promo-btn {
+    background: #00cc66;
+    color: white;
+}
+
+.promo-btn:hover {
+    background: #00994d;
+    transform: translateY(-2px);
+}
+
+.modal {
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.modal.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background: linear-gradient(to bottom right, #ffffff, #f8faff);
+    border-radius: 24px;
+    padding: 2.5rem;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    position: relative;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.modal.active .modal-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.modal-content h2 {
+    color: #0066ff;
+    font-size: 1.8rem;
+    margin-bottom: 1.8rem;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f0f4ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    background: #ff3333;
+    color: white;
+    transform: rotate(90deg);
+}
+
+.form-group {
+    margin-bottom: 1.8rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.8rem;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 1rem 1.2rem;
+    border: 2px solid #e1e1e1;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f8faff;
+    color: #2c3e50;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #0066ff;
+    box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+    outline: none;
+}
+
+.form-group input[type="file"] {
+    padding: 0.8rem;
+    background: white;
+    border: 2px dashed #e1e1e1;
+    cursor: pointer;
+}
+
+.form-group input[type="file"]:hover {
+    border-color: #0066ff;
+    background: #f0f4ff;
+}
+
+.add-dish-btn {
+    width: 100%;
+    padding: 1.2rem;
+    background: linear-gradient(135deg, #0066ff, #0052cc);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.add-dish-btn:hover {
+    background: linear-gradient(135deg, #0052cc, #003d99);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 102, 255, 0.3);
+}
+
+#stopListItems {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.stoplist-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.stoplist-item h4 {
+    font-size: 1.1rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.stoplist-item button {
+    background: #ff9900;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.stoplist-item button:hover {
+    background: #cc7a00;
+    transform: translateY(-2px);
+}
+
+#promoList {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#promoList li {
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+#promoList button {
+    background: #ff3333;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#promoList button:hover {
+    background: #cc0000;
+    transform: translateY(-2px);
+}
+
+.orders-list {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.order-item {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.order-item:hover {
+    background: #f1f8ff;
+    transform: translateY(-3px);
+}
+
+.order-info h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0066ff;
+    margin-bottom: 1rem;
+}
+
+.order-info p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 0.8rem;
+}
+
+.order-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.order-actions button {
+    padding: 0.8rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.order-actions button i {
+    margin-right: 0.5rem;
+}
+
+.confirm-btn {
+    background-color: #00cc66;
+    color: white;
+}
+
+.confirm-btn:hover {
+    background-color: #00994d;
+}
+
+.reject-btn {
+    background-color: #ff3333;
+    color: white;
+}
+
+.reject-btn:hover {
+    background-color: #cc0000;
+}
+
+.stoplist {
+    background-color: #f5f5f5;
+    opacity: 0.8;
+}
+
+#dateGroup {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 1rem;
+    }
+
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .item-actions {
+        flex-direction: column;
+    }
+
+    .item-actions button {
+        width: 100%;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.2rem;
+    }
+
+    .form-group label {
+        font-size: 1rem;
+    }
+
+    .add-dish-btn {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+}
+</style>
+</head>
+<body>
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <div class="admin-container">
+        <div class="header">
+            <h1>Панель администратора</h1>
+            <h2>Ресторан: {{ restaurant_name }}</h2>
+        </div>
+
+        <div class="tabs">
+            <button class="action-button" id="manageProductsButton">
+                <i class="fas fa-box"></i> Управление товарами
+            </button>
+            <button class="action-button" id="reviewOrdersButton">
+                <i class="fas fa-clipboard-list"></i> Рассмотрение заказов
+            </button>
+        </div>
+
+        <div class="content-section">
+            <div class="action-buttons">
+                <button class="action-button" onclick="openAddDishModal()">
+                    <i class="fas fa-plus-circle"></i>
+                    Добавить блюдо
+                </button>
+                <button class="action-button" onclick="showStopList()">
+                    <i class="fas fa-ban"></i>
+                    Стоп-лист
+                </button>
+                <button class="action-button" id="promoUpButton" onclick="openPromoUpModal()">
+                    <i class="fas fa-tag"></i>
+                    Акции
+                </button>
+            </div>
+
+            <div class="products-list">
+                {% if normal_dishes or stoplist_dishes %}
+                    {% for dish in normal_dishes %}
+                        <div class="list-item">
+                            <div class="item-info">
+                                <h3>{{ dish[0] }}</h3>
+                                <p>Цена: {{ dish[1] }}₽</p>
+                                <p>Описание: {{ dish[2] }}</p>
+                                <p>Категория: {{ dish[3] }}</p>
+                            </div>
+                            <div class="item-actions">
+                                <button class="edit-btn" onclick="openEditDishModal('{{ dish[0] }}', '{{ dish[0] }}', '{{ dish[3] }}', '{{ dish[1] }}', '{{ dish[2] }}')">
+                                    <i class="fas fa-edit"></i>
+                                    Изменить
+                                </button>
+                                <form action="{{ url_for('delete_dish_route', dish_name=dish[0]) }}" method="POST" style="display:inline;">
+                                    <button class="delete-btn" type="submit">
+                                        <i class="fas fa-trash"></i>
+                                        Удалить
+                                    </button>
+                                </form>
+                                <button class="stoplist-btn" onclick="addToStopList('{{ dish[0] }}')">
+                                    <i class="fas fa-ban"></i>
+                                    В стоп-лист
+                                </button>
+                                <button class="promo-btn" onclick="openPromoModal('{{ dish[0] }}')">
+                                    <i class="fas fa-tag"></i> Акция
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    {% for dish in stoplist_dishes %}
+                        <div class="list-item stoplist">
+                            <div class="item-info">
+                                <h3>{{ dish[0] }}</h3>
+                                <p>Цена: {{ dish[1] }}₽</p>
+                                <p>Описание: {{ dish[2] }}</p>
+                                <p>Категория: {{ dish[3] }}</p>
+                            </div>
+                            <div class="item-actions">
+                                <button class="edit-btn" onclick="openEditDishModal('{{ dish[0] }}', '{{ dish[0] }}', '{{ dish[3] }}', '{{ dish[1] }}', '{{ dish[2] }}')">
+                                    <i class="fas fa-edit"></i>
+                                    Изменить
+                                </button>
+                                <form action="{{ url_for('delete_dish_route', dish_name=dish[0]) }}" method="POST" style="display:inline;">
+                                    <button class="delete-btn" type="submit">
+                                        <i class="fas fa-trash"></i>
+                                        Удалить
+                                    </button>
+                                </form>
+                                <button class="stoplist-btn" onclick="removeFromStopList('{{ dish[0] }}')">
+                                    <i class="fas fa-undo"></i>
+                                    Вернуть из стоп-листа
+                                </button>
+                                <button class="promo-btn" onclick="openPromoModal('{{ dish[0] }}')">
+                                    <i class="fas fa-tag"></i> Акция
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-center py-8 text-gray-500">Блюда не найдены.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div id="ordersContainer" style="display:none;">
+            <!-- Контейнер для заказов будет заполнен через AJAX -->
+        </div>
+    </div>
+
+    <!-- Модальные окна -->
+    <div id="addDishModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAddDishModal()">&times;</span>
+            <h2>Добавить блюдо</h2>
+            <form action="/add_dish_route2" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="dishName">Название блюда</label>
+                    <input type="text" id="dishName" name="dish_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="categoryId">Категория</label>
+                    <select id="categoryId" name="category_id" required>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="price">Цена</label>
+                    <input type="number" id="price" name="price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Описание</label>
+                    <textarea id="description" name="description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="restaurantId">ID ресторана</label>
+                    <input type="text" id="restaurantId" name="restaurant_id" value="{{ restaurant_id }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="image">Изображение</label>
+                    <input type="file" id="image" name="image" accept="image/*" required>
+                </div>
+                <button type="submit" class="add-dish-btn">Добавить блюдо</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="editDishModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeEditDishModal()">&times;</span>
+            <h2>Редактировать блюдо</h2>
+            <form action="{{ url_for('edit_dish_route') }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" id="dishId" name="dish_id">
+                <div class="form-group">
+                    <label for="editDishName">Название блюда</label>
+                    <input type="text" id="editDishName" name="dish_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="editCategoryId">Категория</label>
+                    <select id="editCategoryId" name="category_id" required>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editPrice">Цена</label>
+                    <input type="number" id="editPrice" name="price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="editDescription">Описание</label>
+                    <textarea id="editDescription" name="description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editImage">Изображение</label>
+                    <input type="file" id="editImage" name="image" accept="image/*">
+                </div>
+                <button type="submit" class="add-dish-btn">Сохранить изменения</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="stopListModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeStopListModal()">&times;</span>
+            <h2>Блюда в стоп-листе</h2>
+            <div id="stopListItems"></div>
+        </div>
+    </div>
+
+    <div id="promoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closePromoModal()">&times;</span>
+            <h2>Создать акцию</h2>
+            <form id="promoForm">
+                <div class="form-group">
+                    <label for="newPrice">Новая цена</label>
+                    <input type="number" id="newPrice" name="newPrice" step="0.01" required>
+                </div>
+                <div class="form-group" id="dateGroup">
+                    <label for="promoEndDate">Дата окончания акции</label>
+                    <input type="date" id="promoEndDate" name="promoEndDate">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="ongoingPromo" name="ongoingPromo" onchange="togglePromoDate()">
+                        Акция работает, пока я не остановлю
+                    </label>
+                </div>
+                <button type="button" class="add-dish-btn" onclick="submitPromoForm()">Создать акцию!</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="promoUpModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closePromoUpModal()">&times;</span>
+            <h2>Блюда с акцией</h2>
+            <ul id="promoList" class="space-y-4">
+                <!-- Список блюд с акцией будет динамически добавлен -->
+            </ul>
+        </div>
+    </div>
+
+    <script>// Функция для открытия модального окна
+function openPromoUpModal() {
+    document.getElementById('promoUpModal').classList.add('active');
+    fetchPromoDishes(); // Загружаем блюда с акциями
+}
+
+// Функция для закрытия модального окна
+function closePromoUpModal() {
+    document.getElementById('promoUpModal').classList.remove('active');
+}
+
+// Функция для получения блюд с акциями
+async function fetchPromoDishes() {
+    try {
+        const response = await fetch('/get_promo2_dishes'); // Эндпоинт для получения данных
+        const data = await response.json();
+
+        const promoList = document.getElementById('promoList');
+        promoList.innerHTML = ''; // Очищаем список перед добавлением новых данных
+
+        if (data.dishes && data.dishes.length > 0) {
+            data.dishes.forEach(dish => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div>
+                        <span>${dish.dish_name} - ${dish.price} ₽</span>
+                        <button onclick="stopDishPromo('${dish.dish_name}')">Остановить акцию</button>
+                    </div>
+                `;
+                promoList.appendChild(li);
+            });
+        } else {
+            promoList.innerHTML = '<p>Акционные блюда отсутствуют.</p>';
+        }
+    } catch (error) {
+        console.error('Ошибка при загрузке блюд с акциями:', error);
+    }
+}
+
+// Функция для остановки акции на блюдо
+async function stopDishPromo(dishName) {
+    try {
+        const response = await fetch(`/remove_promo/${encodeURIComponent(dishName)}`, {
+            method: 'POST',
+        });
+
+        if (response.ok) {
+            alert(`Акция для блюда "${dishName}" успешно завершена.`);
+            fetchPromoDishes(); // Обновляем список
+        } else {
+            alert(`Ошибка при завершении акции для блюда "${dishName}".`);
+        }
+    } catch (error) {
+        console.error(`Ошибка при остановке акции для блюда "${dishName}":`, error);
+    }
+}
+</script>
+
+<script>
+// Открытие модального окна
+function openPromoModal(dishName) {
+    document.getElementById('promoModal').classList.add('active');
+    document.getElementById('promoForm').dataset.dishName = dishName;
+}
+
+// Закрытие модального окна
+function closePromoModal() {
+    document.getElementById('promoModal').classList.remove('active');
+}
+
+// Скрытие/отображение поля даты окончания акции
+function togglePromoDate() {
+    const dateGroup = document.getElementById('dateGroup');
+    const ongoingPromo = document.getElementById('ongoingPromo').checked;
+    dateGroup.style.display = ongoingPromo ? 'none' : 'block';
+    if (ongoingPromo) {
+        document.getElementById('promoEndDate').value = '';
+    }
+}
+
+// Отправка данных на сервер
+function submitPromoForm() {
+    const form = document.getElementById('promoForm');
+    const dishName = form.dataset.dishName;
+    const newPrice = document.getElementById('newPrice').value;
+    const promoEndDate = document.getElementById('promoEndDate').value;
+    const ongoingPromo = document.getElementById('ongoingPromo').checked;
+
+    fetch(`/apply_promo/${encodeURIComponent(dishName)}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ newPrice, promoEndDate, ongoingPromo }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Акция успешно создана!');
+                closePromoModal();
+                location.reload();
+            } else {
+                alert('Ошибка при создании акции.');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при создании акции.');
+        });
+}
+</script>
+
+
+<script>
+    // Открыть модальное окно
+    function showStopList() {
+        document.getElementById('stopListModal').classList.add('active');
+        loadStopList(); // Загружаем блюда в стоп-листе
+    }
+
+    // Закрыть модальное окно
+    function closeStopListModal() {
+        document.getElementById('stopListModal').classList.remove('active');
+    }
+
+    // Функция для удаления блюда из стоп-листа
+    function removeFromStopList(dishName) {
+        fetch(`/remove_from_stoplist/${dishName}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // После успешного удаления обновляем список
+                    loadStopList();
+                    window.location.reload();
+                }
+            });
+    }
+
+    // Загружаем список блюд в стоп-листе
+    function loadStopList() {
+        fetch('/get_stoplist_dishes')
+            .then(response => response.json())
+            .then(dishes => {
+                let html = '';
+                dishes.forEach(dish => {
+                    html += `
+                        <div class="stoplist-item">
+                            <h4>${dish.dish_name}</h4>
+                            <button onclick="removeFromStopList('${dish.dish_name}')">Убрать из стоп-листа</button>
+                        </div>
+                    `;
+                });
+                document.getElementById('stopListItems').innerHTML = html;
+            });
+    }
+</script>
+
+
+    <script>
+    function addToStopList(dishName) {
+        // Отправляем POST-запрос на сервер для обновления статуса блюда
+        fetch('/add_to_stoplist/' + encodeURIComponent(dishName), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ dish_name: dishName })
+        })
+        .then(response => {
+            if (response.ok) {
+                // Обновляем страницу или делаем что-то, если запрос прошел успешно
+                location.reload(); // Перезагружаем страницу, чтобы отобразить обновления
+            } else {
+                alert("Произошла ошибка при добавлении в стоп-лист.");
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert("Произошла ошибка.");
+        });
+    }
+</script>
+
+
+<script>
+function openEditDishModal(dishId, dishName, categoryId, price, description) {
+    // Заполняем форму данными блюда
+    document.getElementById('dishId').value = dishId;
+    document.getElementById('editDishName').value = dishName;
+    document.getElementById('editCategoryId').value = categoryId;
+    document.getElementById('editPrice').value = price;
+    document.getElementById('editDescription').value = description;
+
+    // Проверка данных в консоли
+    console.log("Opening edit modal for dish ID:", dishId);
+    console.log("Dish data:", dishName, categoryId, price, description);
+
+    document.getElementById('editDishModal').classList.add('active');
+}
+
+function closeEditDishModal() {
+    document.getElementById('editDishModal').classList.remove('active');
+}
+</script>
+
+    <script>
+function openAddDishModal() {
+    document.getElementById('addDishModal').classList.add('active');
+}
+
+function closeAddDishModal() {
+    document.getElementById('addDishModal').classList.remove('active');
+}
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Получаем все элементы, которые должны быть скрыты или показаны
+    const actionButtons = document.querySelectorAll('.action-buttons ~ *');
+    const ordersContainer = document.getElementById('ordersContainer');
+
+document.getElementById('manageProductsButton').addEventListener('click', function() {
+    // Получаем все элементы на странице, исключая <script>
+    const allElements = document.querySelectorAll('body *:not(script)');
+
+    // Восстанавливаем отображение всех элементов, но не изменяем их начальный порядок
+    allElements.forEach(element => {
+        if (element.style.display === 'none') {
+            element.style.display = ''; // Возвращаем их исходный стиль
+        }
+    });
+
+    // Скрываем контейнер заказов
+    ordersContainer.style.display = 'none';
+});
+
+document.getElementById('reviewOrdersButton').addEventListener('click', function() {
+    // Скрываем все элементы, кроме контейнера заказов
+    actionButtons.forEach(section => section.style.display = 'none');
+    ordersContainer.style.display = 'block';
+
+    // Загружаем и отображаем заказы
+    fetch('/get_orders')
+        .then(response => response.json())
+        .then(data => {
+            console.log(data); // Логируем, чтобы увидеть, что приходит от сервера
+
+            // Проверяем, что в data есть поле 'orders', и это массив
+            if (data.orders && Array.isArray(data.orders)) {
+                // Фильтруем заказы, оставляем только те, у которых статус "На проверке"
+                const filteredOrders = data.orders.filter(order => order.status === 'На проверке');
+
+                // Проверяем, есть ли заказы с таким статусом
+                if (filteredOrders.length > 0) {
+                    let ordersHtml = '<div class="orders-list">';
+
+filteredOrders.forEach(order => {
+    const receiptFilename = order.receipt.split('/').pop(); // Извлекаем имя файла
+    const receiptPath = `/Check/${receiptFilename}`; // Формируем путь к квитанции
+
+ordersHtml += `
+    <div class="order-item">
+        <div class="order-info">
+            <h3>Заказ #${order.id}</h3>
+            <p>Блюда: ${order.dishes.join(', ')}</p>
+            <p>Сумма: ${order.total_amount}₽</p>
+            <p>Квитанция: <a href="/Check/${order.receipt.split('/').pop()}" target="_blank">Посмотреть</a></p>
+            <p>Адрес: ${order.address}</p>
+            <p>Телефон: ${order.phone_number}</p>
+            <p>Ресторан: ${order.restaurant_name}</p>
+            <p>Статус: ${order.status}</p>
+        </div>
+        <div class="order-actions">
+            <button class="confirm-btn" onclick="updateOrderStatus(${order.id}, 'Approved')">
+                <i class="fas fa-check"></i> Подтвердить
+            </button>
+            <button class="reject-btn" onclick="updateOrderStatus(${order.id}, 'Rejected')">
+                <i class="fas fa-ban"></i> Отклонить
+            </button>
+        </div>
+    </div>
+`;
+});
+
+
+                    ordersHtml += '</div>';
+                    ordersContainer.innerHTML = ordersHtml;
+                } else {
+                    ordersContainer.innerHTML = '<p>Нет заказов на проверке.</p>';
+                }
+            } else {
+                console.error('Ответ не содержит массив заказов:', data);
+                ordersContainer.innerHTML = '<p>Ошибка: данные не в нужном формате.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки заказов:', error);
+            ordersContainer.innerHTML = '<p>Ошибка загрузки заказов.</p>';
+        });
+});
+});
+</script>
+            <script>
+function updateOrderStatus(orderId, status) {
+    fetch(`/update_order_status/${orderId}/${status}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            location.reload();
+        })
+        .catch(error => console.error('Error updating order:', error));
+}
+</script>
+</body>
+</html>
