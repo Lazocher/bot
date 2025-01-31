@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+/* ==========================================================================
+   Variables
+   ========================================================================== */
+:root {
+  --primary-color: #4f46e5;
+  --primary-dark: #4338ca;
+  --secondary-color: #3730a3;
+  --background-color: #f8fafc;
+  --card-background: #ffffff;
+  --text-color: #1f2937;
+  --text-light: #6b7280;
+  --success-color: #10b981;
+  --error-color: #ef4444;
+  --border-color: #e5e7eb;
+
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 2.5rem;
+
+  --border-radius-sm: 0.375rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 1rem;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  min-height: 100vh;
+  font-size: 16px;
+}
+
+/* ==========================================================================
+   Header & Navigation
+   ========================================================================== */
+.header {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: var(--spacing-xl) 0;
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at top right, rgba(255,255,255,0.1) 0%, transparent 60%);
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-md);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+  padding: 0 var(--spacing-md);
+}
+
+.nav-buttons button {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  font-size: 1rem;
+  font-weight: 600;
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.nav-buttons button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.nav-buttons button.active {
+  background-color: white;
+  color: var(--primary-color);
+}
+
+/* ==========================================================================
+   Forms & Layout
+   ========================================================================== */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+.forms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+.form-section {
+  background: var(--card-background);
+  padding: var(--spacing-xl);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-normal);
+  border: 1px solid var(--border-color);
+}
+
+.form-section:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.form-section h2 {
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-lg);
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* Form Elements */
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: 1rem;
+  transition: var(--transition-normal);
+  background-color: #f9fafb;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background-color: white;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: var(--spacing-sm);
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+}
+
+.submit-btn:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+/* Success Message */
+.success-message {
+  position: fixed;
+  bottom: var(--spacing-lg);
+  right: var(--spacing-lg);
+  background-color: var(--success-color);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  animation: slideIn 0.3s ease-out;
+  box-shadow: var(--shadow-lg);
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 var(--spacing-md);
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .nav-buttons {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0 var(--spacing-lg);
+  }
+
+  .nav-buttons button {
+    width: 100%;
+  }
+
+  .forms-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-section {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 var(--spacing-sm);
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+  }
+
+  .nav-buttons button {
+    font-size: 0.9rem;
+  }
+
+  .restaurant-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .header h1 {
+    font-size: 1.6rem;
+  }
+
+  .form-group {
+    margin-bottom: var(--spacing-sm);
+  }
+}
+
+/* ==========================================================================
+   Custom Layout Adjustments
+   ========================================================================== */
+#parent-container {
+  position: relative;
+}
+
+#category-section {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 1rem;
+  box-sizing: border-box;
+  border: 1px solid var(--border-color);
+  background-color: #f9fafb;
+  position: relative;
+  width: 100%;
+}
+
+#city-section {
+  position: absolute;
+  padding: 1rem;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 100%;
+  background-color: #f9fafb;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+.form-group {
+  margin-top: 35px;
+}
+
+/* ==========================================================================
+   Restaurant List & Modal
+   ========================================================================== */
+.restaurant-list {
+  padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+}
+
+.list-title {
+  text-align: center;
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+}
+
+.restaurant-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.restaurant-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.restaurant-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.restaurant-info {
+  flex-grow: 1;
+}
+
+.restaurant-name {
+  font-size: 1.5rem;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+}
+
+.restaurant-city,
+.restaurant-account {
+  font-size: 1rem;
+  color: var(--text-light);
+}
+
+.restaurant-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.action-btn {
+  background-color: var(--primary-color);
+  border: none;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease-in-out;
+  margin-bottom: 0.5rem;
+}
+
+.action-btn:hover {
+  background-color: var(--primary-dark);
+}
+
+@media (max-width: 768px) {
+  .restaurant-actions {
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .action-btn {
+    padding: 0.4rem;
+    font-size: 1rem;
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .restaurant-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .action-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Модальные окна */
+.modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 500px;
+  min-height: 300px;
+  max-height: 90vh; /* Ограничение высоты */
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  box-sizing: border-box;
+  animation: fadeIn 0.4s ease-out;
+  overflow: auto; /* Включаем прокрутку */
+}
+
+.modal.active {
+  display: block;
+}
+
+.modal-content {
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #222;
+  background: linear-gradient(135deg, #f9f9f9, #ffffff);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  position: relative;
+  max-height: 80vh; /* Ограничение контента */
+  overflow-y: auto; /* Прокрутка внутри */
+}
+
+.modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  margin-top: -1rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1.5rem;
+  gap: 1rem;
+}
+
+.action-btn {
+  padding: 0.85rem 1.75rem;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  background: linear-gradient(135deg, #e0e0e0, #f9f9f9);
+  color: #333;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #d6d6d6, #ececec);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.delete-confirm {
+  background: linear-gradient(135deg, #5fae68, #6ec177);
+  color: white;
+}
+
+.close-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f0f4ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.close-btn:hover {
+    background: #ff3333;
+    color: white;
+    transform: rotate(90deg);
+}
+
+.delete-confirm:hover {
+  background: linear-gradient(135deg, #549b5f, #63b46d);
+}
+
+.cancel-btn:hover {
+  background: linear-gradient(135deg, #c65555, #d86767);
+}
+
+/* Адаптивность модальных окон */
+@media (min-width: 768px) {
+  .modal {
+    width: 50%;
+    max-width: 600px;
+  }
+}
+
+/* Анимации */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Список блюд */
+.dishes-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+.list-item {
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.list-item:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.item-info {
+  margin-bottom: 1rem;
+}
+
+.item-info h3 {
+  font-size: 1.6rem;
+  color: #222;
+  margin-bottom: 0.5rem;
+}
+
+.item-info p {
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+.item-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+button {
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  background: #f7f7f7;
+  color: #222;
+}
+
+.edit-btn {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #e57373;
+  color: white;
+}
+
+.stoplist-btn {
+  background-color: #fbc02d;
+  color: white;
+}
+
+.promo-btn {
+  background-color: #81c784;
+  color: white;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  background-color: #f0f0f0;
+}
+
+button:active {
+  transform: translateY(2px);
+}
+
+/* Адаптивность списка блюд */
+@media (max-width: 768px) {
+  .list-item {
+    padding: 1rem;
+  }
+
+  button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal {
+    width: 90%;
+    padding: 1.5rem;
+  }
+
+  .list-item {
+    padding: 0.75rem;
+  }
+
+  button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+}
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Админ   Панель <i class="fas fa-utensils"></i></h1>
+        <div class="nav-buttons">
+            <button id="add-data" class="active">
+                <i class="fas fa-plus-circle"></i> Добавление данных
+            </button>
+            <button id="delete-data">
+                <i class="fas fa-trash-alt"></i> Удаление данных
+            </button>
+            <button id="manage-managers">
+                <i class="fas fa-users-cog"></i> Менеджеры
+            </button>
+            <button id="view-restaurants">
+                <i class="fas fa-utensils"></i> Рестораны
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="forms-grid">
+<section class="form-section" id="restaurant-section">
+    <h2>Добавить Ресторан</h2>
+        <form action="{{ url_for('add_restaurant_route') }}" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="restaurant_name">Название Ресторана</label>
+            <input type="text" id="restaurant_name" name="restaurant_name" required>
+        </div>
+        <div class="form-group">
+            <label for="city_id">Город</label>
+            <select id="city_id" name="city_id" required>
+                {% for city in cities %}
+                <option value="{{ city[0] }}">{{ city[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="category_id">Категория</label>
+            <select id="category_id" name="category_id" required>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="account_number">Номер Счета</label>
+            <input type="text" id="account_number" name="account_number" required>
+        </div>
+        <div class="form-group">
+            <label for="weekdays_schedule">График работы по будням</label>
+            <input type="text" id="weekdays_schedule" name="weekdays_schedule" placeholder="Например: 08:00-18:00" required>
+        </div>
+        <div class="form-group">
+            <label for="weekend_schedule">График работы по выходным</label>
+            <input type="text" id="weekend_schedule" name="weekend_schedule" placeholder="Например: 10:00-16:00">
+        </div>
+        <div class="form-group">
+            <label for="closed_days">Дни, когда ресторан закрыт</label>
+            <div>
+                <label><input type="checkbox" name="closed_days" value="Понедельник"> Понедельник</label>
+                <label><input type="checkbox" name="closed_days" value="Вторник"> Вторник</label>
+                <label><input type="checkbox" name="closed_days" value="Среда"> Среда</label>
+                <label><input type="checkbox" name="closed_days" value="Четверг"> Четверг</label>
+                <label><input type="checkbox" name="closed_days" value="Пятница"> Пятница</label>
+                <label><input type="checkbox" name="closed_days" value="Суббота"> Суббота</label>
+                <label><input type="checkbox" name="closed_days" value="Воскресенье"> Воскресенье</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="manager_username">Ник менеджера</label>
+            <input type="text" id="manager_username" name="manager_username" placeholder="Например: @manager">
+        </div>
+        <button type="submit" class="submit-btn">Добавить Ресторан</button>
+    </form>
+</section>
+
+
+<section class="form-section" id="dish-section">
+    <h2>Добавить Блюдо</h2>
+    <form action="{{ url_for('add_dish_route') }}" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="dish_name">Название Блюда</label>
+            <input type="text" id="dish_name" name="dish_name" required>
+        </div>
+        <div class="form-group">
+            <label for="restaurant_id">Ресторан</label>
+            <select id="restaurant_id" name="restaurant_id" required>
+                {% for restaurant in restaurants %}
+                <option value="{{ restaurant[0] }}">{{ restaurant[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="category_id">Категория</label>
+            <select id="category_id" name="category_id" required>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="price">Цена</label>
+            <input type="number" id="price" name="price" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Описание</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="image">Изображение блюда</label>
+            <input type="file" id="image" name="image" accept="image/*" required>
+        </div>
+        <button type="submit" class="submit-btn">Добавить Блюдо</button>
+    </form>
+</section>
+
+            <section class="form-section" id="category-section">
+                <h2>Добавить Категорию</h2>
+                <form action="{{ url_for('add_category_route') }}" method="POST">
+                    <div class="form-group">
+                        <label for="category_name">Название Категории</label>
+                        <input type="text" id="category_name" name="category_name" required>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        Добавить Категорию
+                    </button>
+                </form>
+            </section>
+
+            <section class="form-section" id="city-section">
+                <h2>Добавить Город</h2>
+                <form action="{{ url_for('add_city_route') }}" method="POST">
+                    <div class="form-group">
+                        <label for="city_name">Название Города</label>
+                        <input type="text" id="city_name" name="city_name" required>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        Добавить Город
+                    </button>
+                </form>
+            </section>
+
+            <section class="form-section" id="manage-managers-section" style="display: none;">
+    <h2><i class="fas fa-users-cog"></i> Управление менеджерами</h2>
+    <form action="{{ url_for('add_manager_route') }}" method="POST">
+        <div class="form-group">
+            <label for="login">Логин Менеджера</label>
+            <input type="text" id="login" name="login" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Пароль Менеджера</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <label for="city_id">Город</label>
+            <select id="city_id" name="city_id" required>
+                {% for city in cities %}
+                <option value="{{ city[1] }}">{{ city[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="restaurant_id">Ресторан</label>
+            <select id="restaurant_id" name="restaurant_id" required>
+                {% for restaurant in restaurants %}
+                <option value="{{ restaurant[1] }}">{{ restaurant[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="submit-btn">
+            <i class="fas fa-user-plus"></i> Добавить Менеджера
+        </button>
+    </form>
+</section>
+
+            <section class="form-section" id="delete-data-section">
+    <h2><i class="fas fa-trash-alt"></i> Удаление данных</h2>
+    <form id="delete-form" action="/delete_data" method="POST">
+    <div class="form-group">
+        <label for="delete_type">Тип данных</label>
+        <select id="delete_type" name="delete_type" required>
+            <option value="city">-- ВЫБЕРИТЕ ТИП ДАННЫХ --</option>
+            <option value="city">Города</option>
+            <option value="category">Категории</option>
+            <option value="restaurant">Рестораны</option>
+        </select>
+    </div>
+
+    <div class="form-group" id="city-group" style="display: none;">
+        <label for="city_id">Выберите город</label>
+        <select id="city_id" name="city_id">
+            {% for city in cities %}
+            <option value="{{ city[0] }}">{{ city[1] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group" id="category-group" style="display: none;">
+        <label for="category_id">Выберите категорию</label>
+        <select id="category_id" name="category_id">
+            {% for category in categories %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group" id="dish-group" style="display: none;">
+        <label for="dish_id">Выберите блюдо</label>
+        <select id="dish_id" name="dish_id">
+            {% for dish in dishes %}
+            <option value="{{ dish.id }}">{{ dish.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group" id="restaurant-group" style="display: none;">
+        <label for="restaurant_id">Выберите ресторан</label>
+        <select id="restaurant_id" name="restaurant_id">
+            {% for restaurant in restaurants %}
+            <option value="{{ restaurant[0] }}">{{ restaurant[1] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button type="submit" class="submit-btn">Удалить</button>
+</form>
+
+            </section>
+
+<!-- Модальное окно подтверждения удаления -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h3>Вы уверены, что хотите удалить этот ресторан?</h3>
+        <p>После удаления данные нельзя будет восстановить.</p>
+        <div class="modal-actions">
+            <button id="cancelDeleteBtn" class="action-btn">Отмена</button>
+            <button id="confirmDeleteBtn" class="action-btn delete-confirm">Удалить</button>
+        </div>
+    </div>
+</div>
+
+<div id="editRestaurantModal" class="modal">
+    <div class="modal-content">
+        <h2>Изменить ресторан</h2>
+        <form id="editRestaurantForm" action="/edit_restaurant" method="POST">
+            <!-- Скрытое поле для restaurant_id -->
+            <input type="hidden" id="restaurant_id" name="restaurant_id">
+
+            <div class="form-group">
+                <label for="restaurant_name">Название ресторана</label>
+                <input type="text" id="restaurant_name" name="restaurant_name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="city_id">Город</label>
+                <select id="city_id" name="city_id" required>
+                    {% for city in cities %}
+                    <option value="{{ city[0] }}">{{ city[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="category_id">Категория</label>
+                <select id="category_id" name="category_id" required>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="account_number">Номер счёта</label>
+                <input type="text" id="account_number" name="account_number" required>
+            </div>
+
+            <div class="form-group">
+                <label for="weekdays_schedule">График работы по будням</label>
+                <input type="text" id="weekdays_schedule" name="weekdays_schedule" placeholder="Например: 08:00-18:00" required>
+            </div>
+
+            <div class="form-group">
+                <label for="weekend_schedule">График работы по выходным</label>
+                <input type="text" id="weekend_schedule" name="weekend_schedule" placeholder="Например: 10:00-16:00">
+            </div>
+
+            <div class="form-group">
+                <label for="closed_days">Дни, когда ресторан закрыт</label>
+                <div>
+                    <label><input type="checkbox" name="closed_days" value="Понедельник"> Понедельник</label>
+                    <label><input type="checkbox" name="closed_days" value="Вторник"> Вторник</label>
+                    <label><input type="checkbox" name="closed_days" value="Среда"> Среда</label>
+                    <label><input type="checkbox" name="closed_days" value="Четверг"> Четверг</label>
+                    <label><input type="checkbox" name="closed_days" value="Пятница"> Пятница</label>
+                    <label><input type="checkbox" name="closed_days" value="Суббота"> Суббота</label>
+                    <label><input type="checkbox" name="closed_days" value="Воскресенье"> Воскресенье</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="manager_username">Ник менеджера</label>
+                <input type="text" id="manager_username" name="manager_username" placeholder="Например: @manager">
+            </div>
+
+            <button type="submit" class="submit-btn">Сохранить изменения</button>
+        </form>
+        <button class="close-btn" id="closeModal">&times;</button>
+    </div>
+</div>
+
+            <div id="editDishModal" class="modal">
+    <div class="modal-content">
+        <h2>Изменить блюдо</h2>
+        <form id="editDishForm" action="/edit_dish" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+            <label for="dish_name">Название Блюда</label>
+            <input type="text" id="dish_name" name="dish_name" required>
+        </div>
+        <div class="form-group">
+            <label for="restaurant_id">Ресторан</label>
+            <select id="restaurant_id" name="restaurant_id" required>
+                {% for restaurant in restaurants %}
+                <option value="{{ restaurant[0] }}">{{ restaurant[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="category_id">Категория</label>
+            <select id="category_id" name="category_id" required>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="price">Цена</label>
+            <input type="number" id="price" name="price" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Описание</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="image">Изображение блюда</label>
+            <input type="file" id="image" name="image" accept="image/*" required>
+        </div>
+
+            <button type="submit" class="submit-btn">Сохранить изменения</button>
+        </form>
+        <button class="close-btn" id="closeDishModal">&times;</button>
+    </div>
+</div>
+
+            <script>// Открытие модального окна с данными блюда
+function openEditDishModal(dishName) {
+    // Отправляем запрос на сервер для получения деталей блюда
+    fetch(`/get_dish_details/${dishName}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Ошибка загрузки данных блюда');
+                return;
+            }
+
+            // Заполняем форму модального окна данными
+            document.getElementById('dish_name').value = data.dish_name;
+            document.getElementById('restaurant_id').value = data.restaurant_id;
+            document.getElementById('category_id').value = data.category_id;
+            document.getElementById('price').value = data.price;
+            document.getElementById('description').value = data.description;
+            // Здесь можно обновить изображение, если нужно
+
+            // Показываем модальное окно
+            document.getElementById('editDishModal').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Ошибка при загрузке данных блюда:', error);
+        });
+}
+
+// Закрытие модального окна
+document.getElementById('closeDishModal').addEventListener('click', function() {
+    document.getElementById('editDishModal').style.display = 'none';
+});
+
+// Отправка формы при изменении блюда
+document.getElementById('editDishForm').addEventListener('submit', function(event) {
+    event.preventDefault();  // Предотвращаем стандартную отправку формы
+
+    // Создаём форму для отправки данных
+    const formData = new FormData(this);
+
+    // Получаем данные из формы и отправляем их на сервер
+    fetch(`/edit_dish/${document.getElementById('dish_name').value}`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Задержка 0.5 секунды перед обновлением страницы
+            setTimeout(function() {
+                location.reload();  // Обновляем страницу
+            }, 500);  // 500 миллисекунд = 0.5 секунды
+        } else {
+            alert('Ошибка обновления блюда: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка обновления блюда:', error);
+    });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const editRestaurantForm = document.getElementById("editRestaurantForm");
+
+    if (!editRestaurantForm) {
+        console.error("Форма редактирования ресторана не найдена!");
+        return;
+    }
+
+    editRestaurantForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const restaurantId = document.getElementById("restaurant_id").value;
+        if (!restaurantId) {
+            alert("Ошибка: ID ресторана отсутствует. Выберите ресторан для редактирования.");
+            return;
+        }
+
+        const formData = new FormData(editRestaurantForm);
+
+        try {
+            const response = await fetch(`/edit_restaurant/${restaurantId}`, {
+                method: "POST",
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`Ошибка HTTP: ${response.status}`);
+            }
+
+            const result = await response.text();
+            console.log("Ответ сервера:", result);
+            alert("Ресторан успешно обновлён!");
+            window.location.reload();
+        } catch (error) {
+            console.error("Ошибка при отправке запроса:", error);
+            alert("Ошибка при обновлении ресторана. Попробуйте ещё раз.");
+        }
+    });
+
+    document.body.addEventListener("click", async (e) => {
+        const button = e.target.closest(".edit-restaurant");
+        if (button) {
+            const restaurantId = button.dataset.id;
+            console.log(`Редактирование ресторана с ID: ${restaurantId}`);
+
+            try {
+                const response = await fetch(`/get_restaurant_details/${restaurantId}`);
+                if (!response.ok) {
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+                const data = await response.json();
+
+                document.getElementById("restaurant_id").value = data.restaurant.id || "";
+                document.getElementById("restaurant_name").value = data.restaurant.name || "";
+                document.getElementById("account_number").value = data.restaurant.account_number || "";
+                document.getElementById("weekdays_schedule").value = data.restaurant.weekdays_schedule || "";
+                document.getElementById("weekend_schedule").value = data.restaurant.weekend_schedule || "";
+                document.getElementById("manager_username").value = data.restaurant.manager_username || "";
+
+                const citySelect = document.getElementById("city_id");
+                citySelect.innerHTML = data.cities.map(city =>
+                    `<option value="${city.id}" ${city.id === data.restaurant.city.id ? "selected" : ""}>${city.name}</option>`
+                ).join("");
+
+                const categorySelect = document.getElementById("category_id");
+                categorySelect.innerHTML = data.categories.map(category =>
+                    `<option value="${category.id}" ${category.id === data.restaurant.category.id ? "selected" : ""}>${category.name}</option>`
+                ).join("");
+
+                document.querySelectorAll("input[name='closed_days']").forEach(checkbox => {
+                    checkbox.checked = data.restaurant.closed_days.includes(checkbox.value);
+                });
+
+                document.getElementById("editRestaurantModal").classList.add("active");
+            } catch (error) {
+                console.error("Ошибка при получении данных ресторана:", error);
+                alert("Не удалось загрузить данные ресторана. Попробуйте ещё раз.");
+            }
+        }
+    });
+
+    document.getElementById("closeModal").addEventListener("click", () => {
+        document.getElementById("editRestaurantModal").classList.remove("active");
+    });
+});
+</script>
+
+<script>
+const buttonIds = ["add-data", "delete-data", "manage-managers", "view-restaurants"];
+
+// Прокачаем кнопки и добавим обработчик события
+buttonIds.forEach(buttonId => {
+  const button = document.getElementById(buttonId);
+
+  if (button) {
+    button.addEventListener("click", () => {
+      const restaurantDetails = document.querySelectorAll(".restaurant-details");
+
+      // Пройдем по всем элементам с классом .restaurant-details
+      restaurantDetails.forEach(element => {
+        element.style.display = "none"; // скрываем каждый элемент
+      });
+    });
+  }
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const deleteModal = document.getElementById("deleteModal");
+    const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+    let restaurantIdToDelete = null;
+
+    // Открытие модального окна при нажатии на кнопку удаления
+    document.querySelectorAll(".delete-restaurant-modal").forEach(button => {
+        button.addEventListener("click", function() {
+            restaurantIdToDelete = this.getAttribute("data-id");
+            deleteModal.style.display = "flex"; // Показываем модальное окно
+        });
+    });
+
+    // Закрытие модального окна при нажатии на "Отмена"
+    cancelDeleteBtn.addEventListener("click", function() {
+        deleteModal.style.display = "none"; // Закрыть окно
+        restaurantIdToDelete = null; // Сбросить ID ресторана
+    });
+
+    // Обработка удаления ресторана
+    confirmDeleteBtn.addEventListener("click", function() {
+        if (restaurantIdToDelete) {
+            // Перенаправление на путь удаления ресторана
+            window.location.href = `/delete_restaurant/${restaurantIdToDelete}`;
+        }
+    });
+});
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const categorySection = document.getElementById('category-section');
+    const citySection = document.getElementById('city-section');
+
+    // Функция для обновления позиций и размеров
+    function updatePositionAndSize() {
+      const rect = categorySection.getBoundingClientRect(); // Получаем координаты элемента
+
+      // Копируем координаты X и Y, с учётом прокрутки страницы
+      citySection.style.left = `${rect.left + window.pageXOffset}px`;  // Координата X
+      citySection.style.top = `${rect.top + window.pageYOffset + rect.height + 20}px`;  // Координата Y + 20px
+
+      // Копируем размеры (ширина и высота)
+      citySection.style.width = `${rect.width}px`;
+      citySection.style.height = `${rect.height}px`;
+
+      // Показываем #city-section после того, как вычисления завершены
+      citySection.style.visibility = 'visible';
+      citySection.style.opacity = '1'; // Плавно показываем контент
+    }
+
+    // Обновляем позицию и размеры сразу после загрузки DOM
+    updatePositionAndSize();
+
+    // Обновляем при изменении размера окна или прокрутки
+    window.addEventListener('resize', updatePositionAndSize);
+    window.addEventListener('scroll', updatePositionAndSize);
+  });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const buttons = {
+        "view-restaurants": document.getElementById("view-restaurants"),
+        "add-data": document.getElementById("add-data"),
+        "delete-data": document.getElementById("delete-data"),
+        "manage-managers": document.getElementById("manage-managers"),
+    };
+
+    const sections = {
+        "restaurant-section": document.getElementById("restaurant-section"),
+        "dish-section": document.getElementById("dish-section"),
+        "category-section": document.getElementById("category-section"),
+        "city-section": document.getElementById("city-section"),
+        "delete-data-section": document.getElementById("delete-data-section"),
+        "manage-managers-section": document.getElementById("manage-managers-section"),
+    };
+
+    const hideAllSections = () => {
+        Object.values(sections).forEach(section => {
+            section.style.display = "none";
+        });
+
+        // Удаляем список ресторанов, если он отображается
+        const restaurantList = document.getElementById("restaurant-list");
+        if (restaurantList) {
+            restaurantList.style.display = "none";
+        }
+    };
+
+    const displayRestaurantList = () => {
+        hideAllSections(); // Скрыть все элементы
+
+        let restaurantList = document.getElementById("restaurant-list");
+
+        // Если список уже создан, просто показываем его
+        if (restaurantList) {
+            restaurantList.style.display = "block";
+        } else {
+            // Создаём новый список, если он ещё не был создан
+            restaurantList = document.createElement("div");
+            restaurantList.id = "restaurant-list";
+            restaurantList.classList.add("restaurant-list");
+            restaurantList.innerHTML = `
+                <h2 class="list-title">Список Ресторанов</h2>
+                <div class="restaurant-cards">
+                    {% for restaurant in restaurants %}
+                    <div class="restaurant-card">
+                        <div class="restaurant-info">
+                            <h3 class="restaurant-name">{{ restaurant[1] }}</h3>
+                            <p class="restaurant-city">Город: {{ restaurant[2] }}</p>
+                            <p class="restaurant-account">Счёт: {{ restaurant[3] }}</p>
+                        </div>
+                        <div class="restaurant-actions">
+                            <button class="action-btn view-details" data-id="{{ restaurant[0] }}">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                            <button class="action-btn edit-restaurant" data-id="{{ restaurant[0] }}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete-restaurant-modal" data-id="{{ restaurant[0] }}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            `;
+            document.body.appendChild(restaurantList);
+
+            // Добавляем обработчики для кнопок
+            const detailsButtons = document.querySelectorAll(".view-details");
+            detailsButtons.forEach(button => {
+                button.addEventListener("click", (event) => {
+                    const restaurantId = event.target.closest("button").dataset.id;
+                    console.log(`Просмотр деталей ресторана с ID: ${restaurantId}`);
+                    displayRestaurantDetails(restaurantId);
+                });
+            });
+
+            const editButtons = document.querySelectorAll(".edit-restaurant");
+            editButtons.forEach(button => {
+                button.addEventListener("click", (event) => {
+                    const restaurantId = event.target.closest("button").dataset.id;
+                    console.log(`Редактирование ресторана с ID: ${restaurantId}`);
+                });
+            });
+
+            const deleteButtons = document.querySelectorAll(".delete-restaurant-modal");
+            deleteButtons.forEach(button => {
+                button.addEventListener("click", (event) => {
+                    const restaurantId = event.target.closest("button").dataset.id;
+                    console.log(`Удаление ресторана с ID: ${restaurantId}`);
+
+                    // Открытие модального окна
+                    const deleteModal = document.getElementById('deleteModal');
+                    deleteModal.style.display = 'block';
+
+                    // Обработчик для кнопки отмены
+                    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+                    cancelDeleteBtn.addEventListener('click', () => {
+                        deleteModal.style.display = 'none';
+                    });
+
+                    // Обработчик для кнопки подтверждения удаления
+                    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+                    confirmDeleteBtn.addEventListener('click', () => {
+                        console.log(`Ресторан с ID ${restaurantId} удалён`);
+                        deleteModal.style.display = 'none';
+
+                        // Отправка POST запроса на сервер для удаления ресторана
+                        fetch(`/delete_restaurant/${restaurantId}`, {
+                            method: 'POST', // Используем POST метод для удаления
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ id: restaurantId }) // Отправляем ID в теле запроса
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.message) {
+                                console.log(`Ресторан с ID ${restaurantId} успешно удалён`);
+                                // Перезагружаем страницу после успешного удаления
+                                location.reload();
+                            } else if (data.error) {
+                                console.log(`Ошибка при удалении ресторана: ${data.error}`);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Ошибка при отправке запроса:', error);
+                        });
+                    });
+                });
+            });
+        }
+    };
+
+const displayRestaurantDetails = (restaurantId) => {
+    hideAllSections(); // Скрыть все секции
+
+    // Запросить детали ресторана по ID
+    fetch(`/get_restaurant_details/${restaurantId}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Полученные данные:', data); // Выводим полученные данные в консоль
+
+            if (data && data.restaurant) {
+                const restaurant = data.restaurant; // Ресторан
+                const dishes = data.dishes || [];  // Блюда
+
+                // Проверка, что dishes это массив
+                if (!Array.isArray(dishes)) {
+                    console.error('Ожидался массив блюд, но данные не соответствуют формату:', dishes);
+                    return;
+                }
+
+                const restaurantDetails = document.createElement("div");
+                restaurantDetails.id = "restaurant-details";
+                restaurantDetails.classList.add("restaurant-details");
+
+                // Извлекаем значения ресторана с проверкой на наличие данных
+                const restaurantName = restaurant.name || 'Название не указано';
+
+                let dishesList = '';
+                dishes.forEach(dish => {
+                    // Преобразуем строку JSON с рейтингами в массив объектов, если это необходимо
+                    let ratings = [];
+                    if (dish.ratings) {
+                        try {
+                            ratings = Array.isArray(dish.ratings) ? dish.ratings : JSON.parse(dish.ratings);
+                        } catch (e) {
+                            console.error('Ошибка при парсинге рейтингов:', e);
+                        }
+                    }
+
+                    // Строим список блюд с передачей названия блюда вместо ID
+                    dishesList += `
+                        <div class="list-item stoplist">
+                            <div class="item-info">
+                                <h3>${dish.dish_name || 'Без названия'}</h3>
+                                <p>Цена: ${dish.price || 'Цена не указана'}₩</p>
+                                <p>Описание: ${dish.description || 'Нет описания'}</p>
+                                <p>Категория: ${dish.category || 'Без категории'}</p>
+                            </div>
+                            <div class="item-actions">
+                                <button class="edit-btn" onclick="openEditDishModal('${dish.dish_name}', '${dish.dish_name}', '${dish.category}', '${dish.price}', '${dish.description}')">
+                                    <i class="fas fa-edit"></i>
+                                    Изменить
+                                </button>
+                                <form action="/delete_dish_route2/${dish.dish_name}" method="POST" style="display:inline;">
+                                    <button class="delete-btn" type="submit">
+                                        <i class="fas fa-trash"></i>
+                                        Удалить
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                restaurantDetails.innerHTML = `
+                    <h2>Ресторан: ${restaurantName}</h2>
+                    <h3>Блюда:</h3>
+                    <div class="dishes-list">
+                        ${dishesList || '<div class="no-dishes">Нет доступных блюд.</div>'}
+                    </div>
+                `;
+                document.body.appendChild(restaurantDetails);
+                restaurantDetails.style.display = "block"; // Показываем раздел с деталями
+            }
+        })
+        .catch(error => console.error('Ошибка при получении данных ресторана:', error));
+};
+
+
+    const handleButtonClick = (buttonId) => {
+        // Скрываем все секции
+        hideAllSections();
+
+        // Убираем активный класс у всех кнопок
+        Object.keys(buttons).forEach(id => buttons[id].classList.remove("active"));
+
+        // Добавляем активный класс текущей кнопке
+        buttons[buttonId].classList.add("active");
+
+        // Показываем нужный раздел
+        if (buttonId === "view-restaurants") {
+            displayRestaurantList();
+        } else {
+            // Показываем соответствующий раздел, если это не кнопка "Рестораны"
+            const sectionId = `${buttonId}-section`;
+            if (sections[sectionId]) {
+                sections[sectionId].style.display = "block";
+            }
+        }
+    };
+
+    // Назначаем обработчики всем кнопкам
+    Object.keys(buttons).forEach(buttonId => {
+        buttons[buttonId].addEventListener("click", () => handleButtonClick(buttonId));
+    });
+
+    // По умолчанию активируем раздел "Добавление данных"
+    handleButtonClick("add-data");
+});
+</script>
+
+
+                <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const modal = document.getElementById("delete-modal");
+        const cancelBtn = document.getElementById("cancel-btn");
+        const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
+        let restaurantIdToDelete = null;
+
+        // Найти все кнопки удаления
+        const deleteButtons = document.querySelectorAll(".delete-restaurant");
+        if (deleteButtons.length === 0) {
+            console.error("Кнопки удаления не найдены. Проверьте HTML.");
+            return;
+        }
+
+        // Открытие модального окна при нажатии кнопки удаления
+        deleteButtons.forEach(button => {
+            button.addEventListener("click", (e) => {
+                restaurantIdToDelete = e.currentTarget.dataset.id;
+                modal.style.display = "flex";
+            });
+        });
+
+        // Закрытие модального окна при нажатии "Назад"
+        cancelBtn.addEventListener("click", () => {
+            modal.style.display = "none";
+            restaurantIdToDelete = null;
+        });
+
+        // Подтверждение удаления
+        confirmDeleteBtn.addEventListener("click", async () => {
+            if (restaurantIdToDelete) {
+                try {
+                    const response = await fetch(`/delete_restaurant/${restaurantIdToDelete}`, {
+                        method: "POST",
+                    });
+                    if (response.ok) {
+                        alert("Ресторан успешно удалён");
+                        location.reload();
+                    } else {
+                        alert("Ошибка при удалении ресторана");
+                    }
+                } catch (error) {
+                    console.error("Ошибка:", error);
+                    alert("Ошибка соединения");
+                }
+                modal.style.display = "none";
+            }
+        });
+
+        // Закрытие модального окна при клике вне его
+        window.addEventListener("click", (e) => {
+            if (e.target === modal) {
+                modal.style.display = "none";
+                restaurantIdToDelete = null;
+            }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const deleteType = document.getElementById("delete_type");
+        const groups = {
+            city: document.getElementById("city-group"),
+            category: document.getElementById("category-group"),
+            dish: document.getElementById("dish-group"),
+            restaurant: document.getElementById("restaurant-group")
+        };
+
+        deleteType.addEventListener("change", () => {
+            // Скрываем все группы
+            Object.values(groups).forEach(group => group.style.display = "none");
+
+            // Показываем соответствующую группу
+            const selectedType = deleteType.value;
+            if (groups[selectedType]) {
+                groups[selectedType].style.display = "block";
+            }
+        });
+    });
+</script>
+
+
+            <script>
+    document.addEventListener("DOMContentLoaded", () => {
+    const form = document.querySelector("#manage-managers-section form");
+    const submitButton = form.querySelector(".submit-btn");
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Останавливаем стандартное поведение формы
+
+        // Собираем данные из формы
+        const formData = new FormData(form);
+
+        try {
+            // Отправляем данные на сервер
+            const response = await fetch("/add_manager", {
+                method: "POST",
+                body: new URLSearchParams(formData), // Преобразуем FormData в URL-encoded формат
+            });
+
+            if (response.ok) {
+                const result = await response.text();
+                alert("Менеджер успешно добавлен!");
+            } else {
+                const error = await response.text();
+                alert("Ошибка при добавлении менеджера: " + error);
+            }
+        } catch (error) {
+            console.error("Ошибка:", error);
+            alert("Произошла ошибка при добавлении менеджера.");
+        }
+    });
+});
+</script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const buttons = {
+                "add-data": document.getElementById("add-data"),
+                "delete-data": document.getElementById("delete-data"),
+                "manage-managers": document.getElementById("manage-managers")
+            };
+
+            const sections = {
+                "restaurant-section": document.getElementById("restaurant-section"),
+                "dish-section": document.getElementById("dish-section"),
+                "category-section": document.getElementById("category-section"),
+                "city-section": document.getElementById("city-section"),
+                "delete-data-section": document.getElementById("delete-data-section"),
+                "manage-managers-section": document.getElementById("manage-managers-section"),
+            };
+
+            const hideAllSections = () => {
+                Object.values(sections).forEach(section => {
+                    section.style.display = "none";
+                });
+            };
+
+            const handleButtonClick = (buttonId) => {
+                hideAllSections();
+                Object.keys(buttons).forEach(id => buttons[id].classList.remove("active"));
+                buttons[buttonId].classList.add("active");
+
+                switch (buttonId) {
+                    case "add-data":
+                        sections["restaurant-section"].style.display = "block";
+                        sections["dish-section"].style.display = "block";
+                        sections["category-section"].style.display = "block";
+                        sections["city-section"].style.display = "block";
+                        break;
+                    case "delete-data":
+                        sections["delete-data-section"].style.display = "block";
+                        break;
+                    case "manage-managers":
+                        sections["manage-managers-section"].style.display = "block";
+                        break;
+                }
+            };
+
+            Object.keys(buttons).forEach(buttonId => {
+                buttons[buttonId].addEventListener("click", () => handleButtonClick(buttonId));
+            });
+
+            handleButtonClick("add-data");
+
+            // Add success message functionality
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', (e) => {
+                    // In a real application, you would handle the form submission
+                    // and only show the success message after successful submission
+                    const successMessage = document.createElement('div');
+                    successMessage.className = 'success-message';
+                    successMessage.innerHTML = '<i class="fas fa-check-circle"></i> Успешно добавлено!';
+                    document.body.appendChild(successMessage);
+
+                    setTimeout(() => {
+                        successMessage.remove();
+                    }, 3000);
+                });
+            });
+        });
+    </script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const deleteTypeSelect = document.getElementById("delete_type");
+        const groups = {
+            "city": document.getElementById("city-select-group"),
+            "category": document.getElementById("category-select-group"),
+            "restaurant": document.getElementById("restaurant-select-group"),
+            "dish": document.getElementById("restaurant-select-group")
+        };
+
+        deleteTypeSelect.addEventListener("change", (e) => {
+            // Скрываем все группы
+            Object.values(groups).forEach(group => group.style.display = "none");
+
+            // Показываем соответствующую группу
+            const selectedType = e.target.value;
+            if (groups[selectedType]) {
+                groups[selectedType].style.display = "block";
+                if (selectedType === "dish") {
+                    document.getElementById("dish-select-group").style.display = "block";
+                }
+            }
+        });
+    });
+
+    async function updateDishes(restaurantId) {
+        const dishSelect = document.getElementById("dish_id");
+        dishSelect.innerHTML = '<option value="">Загрузка...</option>';
+
+        try {
+            const response = await fetch(`/get_dishes_by_restaurant/${restaurantId}`);
+            const dishes = await response.json();
+
+            // Обновляем выпадающий список
+            dishSelect.innerHTML = '<option value="">-- Выберите блюдо --</option>';
+            dishes.forEach(dish => {
+                const option = document.createElement("option");
+                option.value = dish.id;
+                option.textContent = `${dish.name}`;
+                dishSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error("Ошибка при загрузке блюд:", error);
+            dishSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
+        }
+    }
+    </script>
+            <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const navButtons = document.querySelectorAll(".nav-buttons button");
+        const restaurantDetails = document.getElementById("restaurant-details"); // Элемент с информацией о ресторане
+
+        // Добавляем обработчик кликов для всех кнопок в шапке
+        navButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                if (restaurantDetails) {
+                    restaurantDetails.style.display = "none"; // Скрываем элемент
+                }
+            });
+        });
+
+        // Если нужно полностью удалять элемент из DOM, замените строку выше на:
+        // restaurantDetails.remove();
+    });
+</script>
+
+</body>
+</html>
