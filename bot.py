@@ -1,14 +1,4 @@
-import logging
 import os
-from functools import wraps
-from flask import Flask, render_template, request, redirect, url_for, flash, g, jsonify, send_from_directory
-from werkzeug.utils import secure_filename
-
-from database import get_cities, get_categories, add_restaurant, add_dish, add_category, get_restaurants, add_city, \
-    delete_item, add_manager, delete_manager, authenticate_user, delete_dish, get_all_dishes, get_connection, \
-    update_stop_list, get_stop_list
-from flask import session
-import sqlite3import os
 import sqlite3
 import logging
 from datetime import datetime
